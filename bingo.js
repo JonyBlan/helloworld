@@ -17,7 +17,6 @@ server.listen(port, host, () => {
 
 const express = require('express');
 const app = express();
-const port = 3000;
 let max = -1;
 const min = 1;
 const numerosCarton = 10;
@@ -41,7 +40,7 @@ function crearCartones(num){
         let carton = {
             id: i,
             nombre: null,
-            valores: [],
+            valores: [10],
         }
         a = 0
         while(a < numerosCarton) {
@@ -89,14 +88,14 @@ function obtenerCarton(nombre){
 }
 
 function devolverCartones(url){
-    if(url == ""){
-        return cartones
+    if(url === undefined){
+        return -2
     }
     else if(url > cartones.length){
         return -1
     }
     else{
-        return cartones[url]
+        return url
     }
 }
 
@@ -156,7 +155,7 @@ app.post('/numero_aleatorio', (req, res)=>{
 })
 
 app.post('/iniciar_Juego', (req, res)=>{
-    console.log(req.body.cantCartones);    
+   // console.log(req.body.cantCartones);    
     let y = iniciarJuego(req.body.cantCartones);
     if(y == -1){
         res.send("El juego se inicio correctamente")
@@ -173,15 +172,16 @@ app.get('/obtener_Carton', (req, res)=>{
     res.send(numerosEnCarton);
 })
 
-app.get('/cartones', (req, res)=>{
-    console.log(req.body.url);
-    let url = req.body.url;
-    let cartonesAMostrar = devolverCartones(url)
+app.get('/cartones/:cartonEnviado?', (req, res)=>{ // falta cambiar
+    let cartonesAMostrar = devolverCartones(cartonEnviado)
     if(cartonesAMostrar == -1){
         res.send("Debe enviar un numero entre 0 y " + cartones.length)
     }
+    else if(cartonesAMostrar == -2){
+        res.send(cartones)
+    }
     else{
-
+        res.send(cartones[cartonesAMostrar])
     }
     res.send(cartonesAMostrar);
 })
