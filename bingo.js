@@ -19,10 +19,11 @@ const express = require('express');
 const app = express();
 let max = -1;
 const min = 1;
-const numerosCarton = 10;
+const numerosCarton = 15;
 let cartones = []
 let numerosSacados = []
 let ganadores = []
+let cantDecenas
 
 app.use(express.json());
 
@@ -30,21 +31,61 @@ function NumeroAleatorio(){
     return Math.floor(Math.random() * (max - min)) + 1;
 }
 
+function randomNumber(num){
+    return(Math.floor((Math.random()) * num) + 1)
+}
+
 function NumeroAleatorio(maximo){
     return Math.floor(Math.random() * (maximo));
 }
 
 function crearCartones(num){
-    let funciono = -1, numAleatorio, a, cantidad;
-    for (let i = 0; i < num; i++) {
-        let carton = {
+    let funciono = -1, numAleatorio, a, cantidad, nuevoNumero;
+    for (let i = 0; i < num; i++) { // Pasa por la cantidad de cartones que hay
+        let carton = { // Crea un carton vacio
             id: i,
             nombre: null,
             valores: [10],
         }
         a = 0
-        while(a < numerosCarton) {
-            numAleatorio = NumeroAleatorio()
+        while(a < numerosCarton) { // Mientras sigue habiendo espacio para los numeros en el carton
+            nuevoNumero = false
+            let i, c
+            for(i = 0; i < cantDecenas; i++) { // Pasa por la cantidad de decenas que haya en el juego
+                if(numSalidos + i == 15){
+                    cantNumerosEnCarton = 1
+                }
+                else if(numSalidos + (i * 2) == 15){
+                    cantNumerosEnCarton = 2
+                }
+                else{
+                    cantNumerosEnCarton = randomNumber(2)
+                }
+                numSalidos = numSalidos + cantNumerosEnCarton // Agrega la cantidad de numeros en la decena a la cantidad de numeros totales
+                c = 0
+                while(c < cantNumerosEnCarton){
+                    numRandom  = (i * 10) + (randomNumber(10) - 1)
+                    b = 0
+                    while(b < carton.valores.length){
+                        if(carton.valores[b] == numRandom){
+                            b = carton.valores.length + 1
+                        }
+                    }
+                    if(b != (carton.valores.length + 1)){
+                        c++
+                        carton.valores.push(numRandom)
+                        nuevoNumero = true
+                    }
+                }
+            }
+            if(nuevoNumero == true){
+                a++
+            }
+
+            
+
+
+            /*numAleatorio = NumeroAleatorio()
             b = 0
             while(b < i){ // Este while verifica que el numero aleatorio no este ya en el carton
                 if(cartones[i].valores[b] == numAleatorio){
@@ -55,7 +96,7 @@ function crearCartones(num){
             if(b != i+2){ // si el numero aleatorio no esta en el carton, lo agrega, en caso contrario no hace nada
                 carton.valores.push(numAleatorio)
                 a++
-            }
+            }*/
         }
         cartones.push(carton)
     }
@@ -69,6 +110,7 @@ function crearCartones(num){
 function iniciarJuego(num){
     if(max == -1){
         max = 99
+        cantDecenas = Math.ceil(max/10)
     }
     let funciono = crearCartones(num);
     return funciono;
@@ -150,6 +192,7 @@ function anunciarGanador(){
 app.post('/numero_aleatorio', (req, res)=>{
     console.log(req.body.numero);
     max = req.body.max
+    cantDecenas = Math.ceil(max/10)
     let num = NumeroAleatorio();
     res.send(num);
 })
