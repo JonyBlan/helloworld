@@ -28,6 +28,7 @@ let cantDecenas
 app.use(express.json());
 
 function NumeroAleatorio(){
+    console.log("hola")
     return Math.floor(Math.random() * (max - min)) + 1;
 }
 
@@ -35,12 +36,12 @@ function randomNumber(num){
     return(Math.floor((Math.random()) * num) + 1)
 }
 
-function NumeroAleatorio(maximo){
+function NumeroAl(maximo){
     return Math.floor(Math.random() * (maximo));
 }
 
 function crearCartones(num){
-    let funciono = -1, numAleatorio, a, cantidad, nuevoNumero;
+    let funciono = -1, numAleatorio, a, cantidad, nuevoNumero, numSalidos, i, c;
     for (let i = 0; i < num; i++) { // Pasa por la cantidad de cartones que hay
         let carton = { // Crea un carton vacio
             id: i,
@@ -50,8 +51,8 @@ function crearCartones(num){
         a = 0
         while(a < numerosCarton) { // Mientras sigue habiendo espacio para los numeros en el carton
             nuevoNumero = false
-            let i, c
             for(i = 0; i < cantDecenas; i++) { // Pasa por la cantidad de decenas que haya en el juego
+                numSalidos = 0
                 if(numSalidos + i == 15){
                     cantNumerosEnCarton = 1
                 }
@@ -70,8 +71,9 @@ function crearCartones(num){
                         if(carton.valores[b] == numRandom){
                             b = carton.valores.length + 1
                         }
+                        b++
                     }
-                    if(b != (carton.valores.length + 1)){
+                    if(b != (carton.valores.length + 2)){
                         c++
                         carton.valores.push(numRandom)
                         nuevoNumero = true
@@ -80,11 +82,8 @@ function crearCartones(num){
             }
             if(nuevoNumero == true){
                 a++
+                console.log(a)
             }
-
-            
-
-
             /*numAleatorio = NumeroAleatorio()
             b = 0
             while(b < i){ // Este while verifica que el numero aleatorio no este ya en el carton
@@ -100,7 +99,7 @@ function crearCartones(num){
         }
         cartones.push(carton)
     }
-    cantidad = cartones[NumeroAleatorio(num)].valores.length // linea para verificar que la funcion funcione correctamente
+    cantidad = cartones[NumeroAl(num)].valores.length // linea para verificar que la funcion funcione correctamente
     if(cantidad != numerosCarton){
         funciono = 1 // ERROR CODE 1
     }
@@ -120,7 +119,7 @@ function iniciarJuego(num){
 function obtenerCarton(nombre){
     let faltaEncontrar = true, cartonRandom;
     while(faltaEncontrar){ //busca un carton al azar el cual no pertenezca a ninguna persona
-        cartonRandom = NumeroAleatorio(cartones.length);
+        cartonRandom = NumeroAl(cartones.length);
         if(cartones[cartonRandom].nombre == null){
             faltaEncontrar = false;
         }
@@ -181,7 +180,7 @@ function anunciarGanador(){
         }
     }
     if(ganadoresHumanos.length > 0){
-        ganadorAleatorio = NumeroAleatorio(ganadores.length)
+        ganadorAleatorio = NumeroAl(ganadores.length)
         return ("El/la ganador/a del bingo es: " + cartones[ganadoresHumanos[ganadorAleatorio]].nombre + " cuyo id de carton es: " + cartones[ganadoresHumanos[ganadorAleatorio]].id)
     }
     else{
@@ -190,11 +189,11 @@ function anunciarGanador(){
 }
 
 app.post('/numero_aleatorio', (req, res)=>{
-    console.log(req.body.numero);
-    max = req.body.max
+    max = req.body.num
     cantDecenas = Math.ceil(max/10)
-    let num = NumeroAleatorio();
-    res.send(num);
+    let numero = NumeroAleatorio();
+    console.log(numero)
+    res.send([numero]);
 })
 
 app.post('/iniciar_Juego', (req, res)=>{
