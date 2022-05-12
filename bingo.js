@@ -24,11 +24,11 @@ let cartones = []
 let numerosSacados = []
 let ganadores = []
 let cantDecenas
+let carton = []
 
 app.use(express.json());
 
 function NumeroAleatorio(){
-    console.log("hola")
     return Math.floor(Math.random() * (max - min)) + 1;
 }
 
@@ -41,18 +41,22 @@ function NumeroAl(maximo){
 }
 
 function crearCartones(num){
-    let funciono = -1, numAleatorio, a, cantidad, nuevoNumero, numSalidos, i, c;
+    let funciono = -1, numAleatorio, a, cantidad, nuevoNumero, numSalidos, i, c, cantNumerosEnCarton;
     for (let i = 0; i < num; i++) { // Pasa por la cantidad de cartones que hay
-        let carton = { // Crea un carton vacio
+        carton = { // Crea un carton vacio
             id: i,
             nombre: null,
-            valores: [10],
+            valores: [],
+            cant: 10,
         }
         a = 0
+        numSalidos = 0
+
         while(a < numerosCarton) { // Mientras sigue habiendo espacio para los numeros en el carton
             nuevoNumero = false
+            
             for(i = 0; i < cantDecenas; i++) { // Pasa por la cantidad de decenas que haya en el juego
-                numSalidos = 0
+                //numSalidos = 0
                 if(numSalidos + i == 15){
                     cantNumerosEnCarton = 1
                 }
@@ -67,13 +71,13 @@ function crearCartones(num){
                 while(c < cantNumerosEnCarton){
                     numRandom  = (i * 10) + (randomNumber(10) - 1)
                     b = 0
-                    while(b < carton.valores.length){
+                    while(b < carton.cant){
                         if(carton.valores[b] == numRandom){
-                            b = carton.valores.length + 1
+                            b = carton.cant + 1
                         }
                         b++
                     }
-                    if(b != (carton.valores.length + 2)){
+                    if(b != (carton.cant + 2)){
                         c++
                         carton.valores.push(numRandom)
                         nuevoNumero = true
@@ -82,7 +86,6 @@ function crearCartones(num){
             }
             if(nuevoNumero == true){
                 a++
-                console.log(a)
             }
             /*numAleatorio = NumeroAleatorio()
             b = 0
@@ -99,14 +102,10 @@ function crearCartones(num){
         }
         cartones.push(carton)
     }
-    cantidad = cartones[NumeroAl(num)].valores.length // linea para verificar que la funcion funcione correctamente
-    if(cantidad != numerosCarton){
-        funciono = 1 // ERROR CODE 1
-    }
-    return funciono;
+    return -1;
 }
 
-function iniciarJuego(num){
+function iniciarJuego(num){/////////////////////////////acordarme d esto
     if(max == -1){
         max = 99
         cantDecenas = Math.ceil(max/10)
@@ -198,34 +197,28 @@ app.post('/numero_aleatorio', (req, res)=>{
 
 app.post('/iniciar_Juego', (req, res)=>{
    // console.log(req.body.cantCartones);    
-    let y = iniciarJuego(req.body.cantCartones);
-    if(y == -1){
-        res.send("El juego se inicio correctamente")
-    }
-    else{
-        res.send("ERROR code: " + y)
-    }
+    iniciarJuego(req.body.cantCartones);
 })
 
-app.get('/obtener_Carton', (req, res)=>{
+app.get('/obtener_carton', (req, res)=>{
     console.log(req.body.nombre);
     let nombre = req.body.nombre; 
     let numerosEnCarton = obtenerCarton(nombre);    
     res.send(numerosEnCarton);
 })
 
-app.get('/cartones/:cartonEnviado?', (req, res)=>{ // falta cambiar
-    let cartonesAMostrar = devolverCartones(cartonEnviado)
+app.get('/cartones', (req, res)=>{ // falta cambiar
+    let cartonesAMostrar = devolverCartones(req.body.cartonEnviado)
     if(cartonesAMostrar == -1){
-        res.send("Debe enviar un numero entre 0 y " + cartones.length)
+        console.log("Debe enviar un numero entre 0 y " + cartones.length)
     }
     else if(cartonesAMostrar == -2){
-        res.send(cartones)
+        console.log(cartones)
     }
     else{
-        res.send(cartones[cartonesAMostrar])
+        console.log(cartones[cartonesAMostrar])
     }
-    res.send(cartonesAMostrar);
+    console.log(cartonesAMostrar);
 })
 
 app.get('/sacar_numero', (req, res)=>{
